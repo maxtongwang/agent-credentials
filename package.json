@@ -1,0 +1,49 @@
+{
+  "name": "agent-credentials",
+  "version": "0.1.0",
+  "description": "Universal credential injector for AI agents. Install it. Everything just works.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "agent-credentials": "./dist/bin/agent-credentials.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm test && npm run build",
+    "postinstall": "node -e \"try{require('child_process').execSync('agent-credentials scan --quiet',{stdio:'ignore'})}catch{}\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "credentials",
+    "secrets",
+    "ai-agent",
+    "env-vars",
+    "credential-management",
+    "multi-account",
+    "oauth",
+    "api-keys",
+    "docker",
+    "sandbox"
+  ],
+  "author": "Max Wang",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxtongwang/agent-credentials.git"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
+  }
+}
