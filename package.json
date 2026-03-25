@@ -1,12 +1,12 @@
 {
   "name": "agent-credentials",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Universal credential injector for AI agents. Install it. Everything just works.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "agent-credentials": "./dist/bin.js"
+    "agent-credentials": "dist/bin.js"
   },
   "files": [
     "dist",
@@ -40,7 +40,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/maxtongwang/agent-credentials.git"
+    "url": "git+https://github.com/maxtongwang/agent-credentials.git"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",

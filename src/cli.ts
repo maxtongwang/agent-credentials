@@ -14,6 +14,11 @@ import { DotenvScanner } from "./scanners/dotenv.js";
 import { GitHubScanner } from "./scanners/github.js";
 import { AwsScanner } from "./scanners/aws.js";
 import type { CredentialScanner } from "./scanners/interface.js";
+import {
+  registerCanonical,
+  propagateToTools,
+  readFromCanonical,
+} from "./credential-map.js";
 import { existsSync, readFileSync, unlinkSync, appendFileSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
@@ -49,6 +54,7 @@ async function cmdScan(quiet: boolean): Promise<void> {
     if (!(await scanner.detect())) continue;
     const creds = await scanner.scan();
     for (const c of creds) {
+      // Store in our encrypted store (for manual-add and env-sourced creds)
       await store.set({
         provider: c.provider,
         account: c.account,
@@ -58,6 +64,15 @@ async function cmdScan(quiet: boolean): Promise<void> {
         groupValues: c.groupValues,
         source: c.source,
       });
+
+      // Register canonical source in credential map (for file-sourced creds)
+      if (c.source.startsWith("file:") || c.source.startsWith("dotenv:")) {
+        const filePath = c.source.replace(/^(file|dotenv):/, "").split(":")[0]!;
+        registerCanonical(c.provider, c.credentialType, c.account, filePath);
+        // Propagate to other tools that need the same credential
+        propagateToTools(c.provider, c.credentialType, c.account, c.value);
+      }
+
       total++;
     }
   }

@@ -24,3 +24,13 @@ export {
   type ProviderDefinition,
   type CredentialTypeDefinition,
 } from "./aliases.js";
+export {
+  registerCanonical,
+  readFromCanonical,
+  propagateToTools,
+  hasCredential,
+  getMap,
+  registerToolPath,
+  type CredentialMapping,
+  type ToolConfigPath,
+} from "./credential-map.js";
