@@ -45,22 +45,23 @@ Every CLI tool just works. No manual env var setup. No per-tool configuration.
 ## Quick Start
 
 ```bash
-npx agent-credentials
+npm install -g agent-credentials
 ```
 
-One command. Scans your machine, stores encrypted, hooks your shell. Open a new terminal — every CLI tool just works.
+That's it. Install auto-scans your machine, hooks your shell, and stores everything encrypted. Open a new terminal — every CLI tool just works.
 
 ### Docker
 
 ```dockerfile
-ENTRYPOINT ["sh", "-c", "eval $(npx -y agent-credentials inject) && exec \"$@\"", "--"]
+RUN npm install -g agent-credentials
+ENTRYPOINT ["sh", "-c", "eval $(agent-credentials inject) && exec \"$@\"", "--"]
 ```
 
 ### Manual inject (no shell hook)
 
 ```bash
-eval "$(npx -y agent-credentials inject)"    # bash/zsh
-npx -y agent-credentials inject --json       # programmatic
+eval "$(agent-credentials inject)"       # bash/zsh
+agent-credentials inject --json          # programmatic
 ```
 
 ---
