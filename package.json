@@ -6,7 +6,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "agent-credentials": "./dist/bin/agent-credentials.js"
+    "agent-credentials": "./dist/bin.js"
   },
   "files": [
     "dist",
