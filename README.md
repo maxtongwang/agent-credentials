@@ -8,6 +8,7 @@
 [![npm](https://img.shields.io/npm/v/agent-credentials)](https://www.npmjs.com/package/agent-credentials)
 [![Node 20+](https://img.shields.io/badge/node-20+-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)](https://www.typescriptlang.org)
+[![Tests](https://github.com/maxtongwang/agent-credentials/actions/workflows/ci.yml/badge.svg)](https://github.com/maxtongwang/agent-credentials/actions)
 
 <a href="https://www.buymeacoffee.com/whatupmax">
   <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
