@@ -57,45 +57,43 @@ describe("credential map", () => {
     expect(tools).toContain("gcloud");
   });
 
-  it("propagateToTools writes to tool config paths (temp dir)", () => {
-    // Use a temp dir so we never touch real config files
+  it("propagateToTools writes to tool config paths (temp dir, fake provider)", () => {
+    // Use a temp dir AND a fake provider so we never touch real tool config files.
+    // Using a real provider like "github" would also propagate to ~/.config/gh/hosts.yml.
     const tmp = mkdtempSync(join(tmpdir(), "ac-test-"));
-    const testToolPath = join(tmp, "hosts.yml");
+    const testToolPath = join(tmp, "fake-tool-config.yml");
 
-    // Register a custom tool path pointing at our temp dir
+    // Register a custom tool path with a fake provider
     registerToolPath({
-      tool: "gh-test",
-      provider: "github",
-      credentialType: "personal_token",
+      tool: "fake-tool-test",
+      provider: "fake_provider_test",
+      credentialType: "api_key",
       path: testToolPath,
       read: (content) => {
-        const match = content.match(/oauth_token:\s*(.+)/);
+        const match = content.match(/token:\s*(.+)/);
         return match?.[1]?.trim() ?? null;
       },
-      write: (token) =>
-        `github.com:\n    oauth_token: ${token}\n    user: \n    git_protocol: https\n`,
+      write: (token) => `token: ${token}\n`,
     });
 
     // Register canonical at a non-existent path so the test tool path is a candidate
     registerCanonical(
-      "github",
-      "personal_token",
+      "fake_provider_test",
+      "api_key",
       "test-prop",
       "/nonexistent/path",
     );
 
     const populated = propagateToTools(
-      "github",
-      "personal_token",
+      "fake_provider_test",
+      "api_key",
       "test-prop",
-      "ghp_safe_test_token_123",
+      "test_token_abc123",
     );
 
     expect(Array.isArray(populated)).toBe(true);
-    // Verify it wrote to our temp path, not the real gh config
-    if (existsSync(testToolPath)) {
-      const content = readFileSync(testToolPath, "utf8");
-      expect(content).toContain("ghp_safe_test_token_123");
-    }
+    expect(existsSync(testToolPath)).toBe(true);
+    const content = readFileSync(testToolPath, "utf8");
+    expect(content).toContain("test_token_abc123");
   });
 });

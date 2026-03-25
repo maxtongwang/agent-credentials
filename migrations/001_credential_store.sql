@@ -1,5 +1,7 @@
 -- credential_store — encrypted credential storage for agent-credentials SupabaseBackend.
 -- Secrets stored in encrypted_data (AES-256-GCM, decrypted in Node process only).
+-- Workspace isolation is enforced at the application layer (all queries filter by workspace_id).
+-- RLS is not used because the backend connects with the service role key which bypasses RLS.
 
 CREATE TABLE credential_store (
   id              uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -16,10 +18,5 @@ CREATE TABLE credential_store (
   updated_at      timestamptz DEFAULT now(),
   UNIQUE(workspace_id, provider, account)
 );
-
-ALTER TABLE credential_store ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "workspace_isolation" ON credential_store
-  USING (workspace_id = current_setting('app.workspace_id', true));
 
 CREATE INDEX idx_cred_workspace ON credential_store(workspace_id);

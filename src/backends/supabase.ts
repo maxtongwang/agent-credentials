@@ -138,19 +138,7 @@ export class SupabaseBackend implements CredentialBackend {
     provider: string,
     account: string,
   ): Promise<void> {
-    // Unset all defaults for this provider in workspace
-    const { error: unsetError } = await this.client
-      .from(this.table)
-      .update({ is_default: false, updated_at: new Date().toISOString() })
-      .eq("workspace_id", workspaceId)
-      .eq("provider", provider);
-
-    if (unsetError)
-      throw new Error(
-        `Supabase setDefault unset failed: ${unsetError.message}`,
-      );
-
-    // Set the target as default
+    // Set target as default first — if this fails, no state is changed
     const { error: setError } = await this.client
       .from(this.table)
       .update({ is_default: true, updated_at: new Date().toISOString() })
@@ -160,6 +148,19 @@ export class SupabaseBackend implements CredentialBackend {
 
     if (setError)
       throw new Error(`Supabase setDefault set failed: ${setError.message}`);
+
+    // Then unset all others — safe because target already has is_default=true
+    const { error: unsetError } = await this.client
+      .from(this.table)
+      .update({ is_default: false, updated_at: new Date().toISOString() })
+      .eq("workspace_id", workspaceId)
+      .eq("provider", provider)
+      .neq("account", account);
+
+    if (unsetError)
+      throw new Error(
+        `Supabase setDefault unset failed: ${unsetError.message}`,
+      );
 
     this.invalidateCache(workspaceId);
   }
@@ -182,6 +183,8 @@ export class SupabaseBackend implements CredentialBackend {
       token: string;
       refreshToken?: string;
       groupValues?: Record<string, string>;
+      storedBy?: string;
+      lastUsedAt?: number;
     };
 
     return {
@@ -198,6 +201,8 @@ export class SupabaseBackend implements CredentialBackend {
       groupValues: encrypted.groupValues,
       metadata: {
         storedAt: new Date(row.created_at).getTime(),
+        storedBy: encrypted.storedBy,
+        lastUsedAt: encrypted.lastUsedAt,
         source: row.source ?? undefined,
       },
     };
@@ -211,6 +216,8 @@ export class SupabaseBackend implements CredentialBackend {
       token: cred.token,
       refreshToken: cred.refreshToken,
       groupValues: cred.groupValues,
+      storedBy: cred.metadata.storedBy,
+      lastUsedAt: cred.metadata.lastUsedAt,
     });
 
     return {

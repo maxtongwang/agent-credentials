@@ -42,9 +42,16 @@ function createMockClient(): SupabaseClient {
   ) {
     const filters: Array<{ column: string; value: string }> = [];
 
+    const negFilters: Array<{ column: string; value: string }> = [];
+
     const builder = {
       eq(column: string, value: string) {
         filters.push({ column, value });
+        return builder;
+      },
+
+      neq(column: string, value: string) {
+        negFilters.push({ column, value });
         return builder;
       },
 
@@ -97,6 +104,9 @@ function createMockClient(): SupabaseClient {
             if (
               filters.every(
                 (f) => String(r[f.column as keyof MockRow]) === String(f.value),
+              ) &&
+              negFilters.every(
+                (f) => String(r[f.column as keyof MockRow]) !== String(f.value),
               )
             ) {
               Object.assign(r, payload);
