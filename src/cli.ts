@@ -327,20 +327,27 @@ export async function main(argv: string[]): Promise<void> {
       return;
     case "uninstall":
       return cmdUninstall();
-    default:
+    case "help":
+    case "--help":
+    case "-h":
       console.log(`agent-credentials — Universal credential injector for AI agents
 
 Usage:
-  agent-credentials init                    Auto-hook shell + first scan
+  agent-credentials                         Setup (scan + hook shell)
   agent-credentials inject [--json|--fish]  Output env var exports
-  agent-credentials scan                    Discover credentials
+  agent-credentials scan                    Re-scan all sources
   agent-credentials add <provider> --token <value>
   agent-credentials remove <provider> [account]
   agent-credentials list [provider]
   agent-credentials accounts <provider>
   agent-credentials set-default <provider> <account>
+  agent-credentials keychain <provider>     Switch keychain (1password, bitwarden)
   agent-credentials check                   Health check
   agent-credentials version
   agent-credentials uninstall`);
+      return;
+    default:
+      // No command = init (scan + hook shell). True one-command setup.
+      return cmdInit();
   }
 }

@@ -45,31 +45,22 @@ Every CLI tool just works. No manual env var setup. No per-tool configuration.
 ## Quick Start
 
 ```bash
-# Install
-npm install -g agent-credentials
-
-# Auto-hook your shell (adds eval line to ~/.zshrc or ~/.bashrc)
-agent-credentials init
-
-# Done. Open a new terminal — credentials are injected.
-# gh, gcloud, aws, curl, any tool — they all read their expected env vars.
+npx agent-credentials
 ```
 
-### Manual mode
-
-```bash
-# Don't want to modify shell profile? Just eval when needed:
-eval "$(agent-credentials inject)"
-
-# Or get JSON for programmatic use:
-agent-credentials inject --json
-```
+One command. Scans your machine, stores encrypted, hooks your shell. Open a new terminal — every CLI tool just works.
 
 ### Docker
 
 ```dockerfile
-# In your Dockerfile — one line:
-ENTRYPOINT ["sh", "-c", "eval $(agent-credentials inject) && exec \"$@\"", "--"]
+ENTRYPOINT ["sh", "-c", "eval $(npx -y agent-credentials inject) && exec \"$@\"", "--"]
+```
+
+### Manual inject (no shell hook)
+
+```bash
+eval "$(npx -y agent-credentials inject)"    # bash/zsh
+npx -y agent-credentials inject --json       # programmatic
 ```
 
 ---
