@@ -43,6 +43,7 @@
     "url": "https://github.com/maxtongwang/agent-credentials.git"
   },
   "devDependencies": {
+    "@types/node": "^25.5.0",
     "typescript": "^5.8.0",
     "vitest": "^3.2.0"
   }
