@@ -186,6 +186,47 @@ agent-credentials is framework-agnostic. Works with any agent that spawns proces
 
 ---
 
+## Cloud Storage (Supabase)
+
+Set two env vars and agent-credentials auto-detects Supabase as the backend. All operations persist to your Supabase project instead of local files. Zero re-setup on host rebuild.
+
+```bash
+# Set env vars — agent-credentials auto-detects Supabase
+export SUPABASE_URL="https://your-project.supabase.co"
+export SUPABASE_SERVICE_KEY="your-service-key"
+export AGENT_CREDENTIALS_KEY="your-64-char-hex-key"
+
+# That's it. All operations now use Supabase.
+```
+
+| Feature        | Detail                                                                       |
+| -------------- | ---------------------------------------------------------------------------- |
+| Auto-detection | `SUPABASE_URL` + `SUPABASE_SERVICE_KEY` set = Supabase; otherwise local file |
+| Encryption     | AES-256-GCM in Node process. Supabase stores ciphertext only.                |
+| Per-workspace  | Row-level security isolates each workspace's credentials.                    |
+| Migration      | Run `migrations/001_credential_store.sql` in your Supabase project.          |
+| Caching        | 5-minute in-memory cache on `listAll()`, invalidated on writes.              |
+
+### Programmatic usage
+
+```ts
+import {
+  SupabaseBackend,
+  CredentialStore,
+  AesGcmEncryption,
+} from "agent-credentials";
+
+const store = new CredentialStore({
+  backend: new SupabaseBackend({
+    supabaseUrl: process.env.SUPABASE_URL!,
+    supabaseKey: process.env.SUPABASE_SERVICE_KEY!,
+  }),
+  encryption: new AesGcmEncryption(process.env.AGENT_CREDENTIALS_KEY!),
+});
+```
+
+---
+
 ## Security
 
 | Feature         | Detail                                                                    |
