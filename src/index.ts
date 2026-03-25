@@ -10,6 +10,11 @@ export {
 export { AesGcmEncryption } from "./encryption/aes-gcm.js";
 export type { EncryptionProvider } from "./encryption/interface.js";
 export { MemoryBackend } from "./backends/memory.js";
+export { FileBackend } from "./backends/file.js";
+export {
+  SupabaseBackend,
+  type SupabaseBackendOptions,
+} from "./backends/supabase.js";
 export type {
   CredentialBackend,
   StoredCredential,

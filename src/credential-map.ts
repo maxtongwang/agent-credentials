@@ -242,12 +242,12 @@ export function propagateToTools(
     // Skip canonical source
     if (mapping && toolPath.path === mapping.canonicalPath) continue;
 
-    // Skip if tool already has a valid credential
+    // Skip if tool already has a valid credential — never overwrite real tokens
     if (existsSync(toolPath.path)) {
       try {
         const existing = readFileSync(toolPath.path, "utf8");
         const existingToken = toolPath.read(existing);
-        if (existingToken) continue; // Already has credential — don't overwrite
+        if (existingToken && existingToken.length >= 8) continue; // Has real credential — don't overwrite
       } catch {
         // Can't read — will overwrite
       }

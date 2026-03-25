@@ -2,7 +2,9 @@
 
 import { CredentialStore } from "./store.js";
 import { FileBackend } from "./backends/file.js";
+import { SupabaseBackend } from "./backends/supabase.js";
 import { AesGcmEncryption } from "./encryption/aes-gcm.js";
+import type { CredentialBackend } from "./backends/interface.js";
 import {
   resolveEnv,
   formatInject,
@@ -25,9 +27,20 @@ import { homedir } from "node:os";
 
 // ── Store factory ───────────────────────────────────────────────────────────
 
+/** Auto-detect backend: Supabase when env vars set, otherwise local file. */
+function createDefaultBackend(): CredentialBackend {
+  if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
+    return new SupabaseBackend({
+      supabaseUrl: process.env.SUPABASE_URL,
+      supabaseKey: process.env.SUPABASE_SERVICE_KEY,
+    });
+  }
+  return new FileBackend();
+}
+
 function createStore(): CredentialStore {
   return new CredentialStore({
-    backend: new FileBackend(),
+    backend: createDefaultBackend(),
     encryption: new AesGcmEncryption(),
   });
 }

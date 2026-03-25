@@ -1,11 +1,16 @@
 // Tests for credential map — canonical registration, propagation, hasCredential.
+// propagateToTools test uses a temp dir to avoid overwriting real tool config files.
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { mkdtempSync, writeFileSync, readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import {
   registerCanonical,
   hasCredential,
   getMap,
   propagateToTools,
+  registerToolPath,
   KNOWN_TOOL_PATHS,
 } from "../credential-map.js";
 
@@ -52,21 +57,43 @@ describe("credential map", () => {
     expect(tools).toContain("gcloud");
   });
 
-  it("propagateToTools returns populated paths", () => {
-    // Register with a non-existent canonical so all tool paths are candidates
+  it("propagateToTools writes to tool config paths (temp dir, fake provider)", () => {
+    // Use a temp dir AND a fake provider so we never touch real tool config files.
+    // Using a real provider like "github" would also propagate to ~/.config/gh/hosts.yml.
+    const tmp = mkdtempSync(join(tmpdir(), "ac-test-"));
+    const testToolPath = join(tmp, "fake-tool-config.yml");
+
+    // Register a custom tool path with a fake provider
+    registerToolPath({
+      tool: "fake-tool-test",
+      provider: "fake_provider_test",
+      credentialType: "api_key",
+      path: testToolPath,
+      read: (content) => {
+        const match = content.match(/token:\s*(.+)/);
+        return match?.[1]?.trim() ?? null;
+      },
+      write: (token) => `token: ${token}\n`,
+    });
+
+    // Register canonical at a non-existent path so the test tool path is a candidate
     registerCanonical(
-      "github",
-      "personal_token",
+      "fake_provider_test",
+      "api_key",
       "test-prop",
       "/nonexistent/path",
     );
+
     const populated = propagateToTools(
-      "github",
-      "personal_token",
+      "fake_provider_test",
+      "api_key",
       "test-prop",
-      "ghp_test_propagate_123",
+      "test_token_abc123",
     );
-    // May or may not populate depending on whether tool paths already have creds
+
     expect(Array.isArray(populated)).toBe(true);
+    expect(existsSync(testToolPath)).toBe(true);
+    const content = readFileSync(testToolPath, "utf8");
+    expect(content).toContain("test_token_abc123");
   });
 });
