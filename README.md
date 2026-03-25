@@ -32,6 +32,7 @@ npm install -g agent-credentials
 ```
 
 That's it. agent-credentials:
+
 1. **Scans** your machine for existing credentials (AWS, GCloud, GitHub, .env files, keychains)
 2. **Stores** them encrypted in a unified store
 3. **Injects** them into every shell — expanding to ALL known env var names each tool expects
@@ -124,16 +125,16 @@ agent-credentials accounts google
 
 agent-credentials automatically discovers credentials from:
 
-| Source | What it finds |
-|--------|-------------|
-| Environment variables | Any existing API keys (GOOGLE_API_KEY, GH_TOKEN, etc.) |
-| `~/.aws/credentials` | AWS access keys and profiles |
-| `~/.config/gcloud/` | Google OAuth tokens |
-| `~/.config/gh/hosts.yml` | GitHub tokens |
-| `~/.docker/config.json` | Docker registry auth |
-| `.env` files | Project-level secrets |
-| macOS Keychain | Stored service passwords |
-| `~/.kube/config` | Kubernetes tokens |
+| Source                   | What it finds                                          |
+| ------------------------ | ------------------------------------------------------ |
+| Environment variables    | Any existing API keys (GOOGLE_API_KEY, GH_TOKEN, etc.) |
+| `~/.aws/credentials`     | AWS access keys and profiles                           |
+| `~/.config/gcloud/`      | Google OAuth tokens                                    |
+| `~/.config/gh/hosts.yml` | GitHub tokens                                          |
+| `~/.docker/config.json`  | Docker registry auth                                   |
+| `.env` files             | Project-level secrets                                  |
+| macOS Keychain           | Stored service passwords                               |
+| `~/.kube/config`         | Kubernetes tokens                                      |
 
 ---
 
@@ -141,16 +142,16 @@ agent-credentials automatically discovers credentials from:
 
 Built-in alias registry covers all major tools:
 
-| Provider | Env vars auto-mapped |
-|----------|---------------------|
-| Google | GOOGLE_API_KEY, GOOGLE_ACCESS_TOKEN, GOOGLE_OAUTH_TOKEN, CLOUDSDK_AUTH_ACCESS_TOKEN |
-| GitHub | GH_TOKEN, GITHUB_TOKEN |
-| AWS | AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY (always paired) |
-| OpenAI | OPENAI_API_KEY |
-| Anthropic | ANTHROPIC_API_KEY |
-| Stripe | STRIPE_API_KEY, STRIPE_SECRET_KEY |
-| Slack | SLACK_BOT_TOKEN, SLACK_API_TOKEN |
-| + 33 more | [Full registry →](docs/PROVIDERS.md) |
+| Provider  | Env vars auto-mapped                                                                |
+| --------- | ----------------------------------------------------------------------------------- |
+| Google    | GOOGLE_API_KEY, GOOGLE_ACCESS_TOKEN, GOOGLE_OAUTH_TOKEN, CLOUDSDK_AUTH_ACCESS_TOKEN |
+| GitHub    | GH_TOKEN, GITHUB_TOKEN                                                              |
+| AWS       | AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY (always paired)                           |
+| OpenAI    | OPENAI_API_KEY                                                                      |
+| Anthropic | ANTHROPIC_API_KEY                                                                   |
+| Stripe    | STRIPE_API_KEY, STRIPE_SECRET_KEY                                                   |
+| Slack     | SLACK_BOT_TOKEN, SLACK_API_TOKEN                                                    |
+| + 33 more | [Full registry →](docs/PROVIDERS.md)                                                |
 
 Same credential → injected under ALL known env var names. Any CLI tool reads its expected var.
 
@@ -181,27 +182,27 @@ agent-credentials uninstall          # Remove store, key, shell hooks
 
 agent-credentials is framework-agnostic. Works with any agent that spawns processes:
 
-| Framework | Integration |
-|-----------|------------|
-| OttoRuntime | Docker ENTRYPOINT — zero code |
-| OpenClaw | Shell exec env — zero code |
-| LangChain | `subprocess.Popen(env=json.loads(output))` |
-| CrewAI | Same as LangChain |
-| Claude Code | Shell profile — zero code |
+| Framework     | Integration                                                |
+| ------------- | ---------------------------------------------------------- |
+| Claude Code   | Shell profile — zero code                                  |
+| OpenClaw      | Shell exec env — zero code                                 |
+| LangChain     | `subprocess.Popen(env=json.loads(output))`                 |
+| CrewAI        | Same as LangChain                                          |
+| AutoGen       | Same as LangChain                                          |
 | Any framework | `eval "$(agent-credentials inject)"` before tool execution |
 
 ---
 
 ## Security
 
-| Feature | Detail |
-|---------|--------|
-| Encryption | AES-256-GCM at rest. Auto-generated key on first run. |
-| Permissions | Store dir: 0700. Key file: 0600. |
-| No plaintext | Credentials never stored unencrypted. |
-| Scan only reads | Scanners only read existing files. Never modify. |
-| No network | Core package makes zero network requests. Scanners read local files only. |
-| Open source | Full source available. No telemetry. No phone-home. |
+| Feature         | Detail                                                                    |
+| --------------- | ------------------------------------------------------------------------- |
+| Encryption      | AES-256-GCM at rest. Auto-generated key on first run.                     |
+| Permissions     | Store dir: 0700. Key file: 0600.                                          |
+| No plaintext    | Credentials never stored unencrypted.                                     |
+| Scan only reads | Scanners only read existing files. Never modify.                          |
+| No network      | Core package makes zero network requests. Scanners read local files only. |
+| Open source     | Full source available. No telemetry. No phone-home.                       |
 
 ---
 
@@ -224,4 +225,5 @@ npm run typecheck # TypeScript strict
 </a>
 
 MIT License
+
 </div>
