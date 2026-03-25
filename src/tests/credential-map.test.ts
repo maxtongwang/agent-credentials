@@ -1,11 +1,16 @@
 // Tests for credential map — canonical registration, propagation, hasCredential.
+// propagateToTools test uses a temp dir to avoid overwriting real tool config files.
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { mkdtempSync, writeFileSync, readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import {
   registerCanonical,
   hasCredential,
   getMap,
   propagateToTools,
+  registerToolPath,
   KNOWN_TOOL_PATHS,
 } from "../credential-map.js";
 
@@ -52,21 +57,45 @@ describe("credential map", () => {
     expect(tools).toContain("gcloud");
   });
 
-  it("propagateToTools returns populated paths", () => {
-    // Register with a non-existent canonical so all tool paths are candidates
+  it("propagateToTools writes to tool config paths (temp dir)", () => {
+    // Use a temp dir so we never touch real config files
+    const tmp = mkdtempSync(join(tmpdir(), "ac-test-"));
+    const testToolPath = join(tmp, "hosts.yml");
+
+    // Register a custom tool path pointing at our temp dir
+    registerToolPath({
+      tool: "gh-test",
+      provider: "github",
+      credentialType: "personal_token",
+      path: testToolPath,
+      read: (content) => {
+        const match = content.match(/oauth_token:\s*(.+)/);
+        return match?.[1]?.trim() ?? null;
+      },
+      write: (token) =>
+        `github.com:\n    oauth_token: ${token}\n    user: \n    git_protocol: https\n`,
+    });
+
+    // Register canonical at a non-existent path so the test tool path is a candidate
     registerCanonical(
       "github",
       "personal_token",
       "test-prop",
       "/nonexistent/path",
     );
+
     const populated = propagateToTools(
       "github",
       "personal_token",
       "test-prop",
-      "ghp_test_propagate_123",
+      "ghp_safe_test_token_123",
     );
-    // May or may not populate depending on whether tool paths already have creds
+
     expect(Array.isArray(populated)).toBe(true);
+    // Verify it wrote to our temp path, not the real gh config
+    if (existsSync(testToolPath)) {
+      const content = readFileSync(testToolPath, "utf8");
+      expect(content).toContain("ghp_safe_test_token_123");
+    }
   });
 });
